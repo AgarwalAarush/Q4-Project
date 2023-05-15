@@ -44,4 +44,7 @@ public class Player{
         if (yPos!=10000)
             yPos++;
     }
+    public int getR(){
+
+    }
 }

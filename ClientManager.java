@@ -10,21 +10,19 @@ public class ClientManager {
     }
 
     // broadcast grid
-    public void broadcast() {
+    public void broadcast(String update) {
         for (ServerThread s : list) {
-            s.send()
+            s.send(update);
         }
     }
 
-    // broadcast positions and size
-    public void broadcast() {
-        for (ServerThread s : list) {
-
-        }
-    }
-
+    // starting screen
     public void start() {
         
+    }
+
+    public void addThread(ServerThread s) {
+        list.add(s);
     }
 
 }

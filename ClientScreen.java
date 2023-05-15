@@ -18,7 +18,8 @@ import javax.swing.SwingConstants;
 public class ClientScreen extends JPanel implements ActionListener,KeyListener{
     Player player;
     int[] backgroundPos;
-    private PrintWriter out;
+    private ObjectOutputStream out;
+    private ObjectInputStream in;
     private ArrayList<String> log = new ArrayList<String>();
 
     public ClientScreen(){
@@ -43,6 +44,10 @@ public class ClientScreen extends JPanel implements ActionListener,KeyListener{
             g.drawLine(0,800,i*50-backgroundPos[1],i*50-backgroundPos[1]);
         }
         player.drawMe(g);
+        String latestLog = log.get(log.size()-1);
+        int numCharacters = Integer.parseInt(latestLog.substring(0,latestLog.indexOf(" ")));
+        for (int i=0;i>)
+        
 	}
 	
 	public void actionPerformed(ActionEvent e){
@@ -69,19 +74,22 @@ public class ClientScreen extends JPanel implements ActionListener,KeyListener{
 
     }
     public void poll() throws IOException {
-        String hostName = "localhost"; //localhost
-        int portNumber = 1024;
+        
+        // String hostName = "10.11.115.207";
+        String hostName = "localhost";
+        int portNumber = 1023;
         Socket serverSocket = new Socket(hostName, portNumber);
-        BufferedReader in = new BufferedReader(new InputStreamReader(serverSocket.getInputStream()));
-        out = new PrintWriter(serverSocket.getOutputStream(), true);
-        out.println(player.getX()+" "+player.getY()+" "+player.getRadius());
+        out = new ObjectOutputStream(serverSocket.getOutputStream());
+        in = new ObjectInputStream(serverSocket.getInputStream());
         repaint();
+
         // listens for inputs
         try {
-            while (true) {
-                String message = in.readLine();
-                log.add(message);
-                repaint();
+            String message;
+            try {
+                message = (String) (in.readObject());
+                // different message cases
+                
             }
         } catch (UnknownHostException e) {
             System.err.println("Host unkown: " + hostName);
