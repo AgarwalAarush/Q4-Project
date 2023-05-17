@@ -18,6 +18,7 @@ import javax.swing.SwingConstants;
 public class ClientScreen extends JPanel implements ActionListener,KeyListener{
     Player player;
     int[] backgroundPos;
+    ArrayList<Player> otherPlayers;
     private ObjectOutputStream out;
     private ObjectInputStream in;
     private ArrayList<String> log = new ArrayList<String>();
@@ -39,32 +40,51 @@ public class ClientScreen extends JPanel implements ActionListener,KeyListener{
 		super.paintComponent(g);
         backgroundPos[0]=player.getX();
         backgroundPos[1]=player.getY();
-        for (int i=0;i<200;i++){
-            g.drawLine(i*50-backgroundPos[0],i*50-backgroundPos[0],0,800);
-            g.drawLine(0,800,i*50-backgroundPos[1],i*50-backgroundPos[1]);
+        for (int i = 0; i < 200 ; i++){
+            g.drawLine(i * 25 - backgroundPos[0], i * 25 - backgroundPos[0],0,800);
+            g.drawLine(0, 800, i * 50 - backgroundPos[1],i * 50 - backgroundPos[1]);
         }
         player.drawMe(g);
         String latestLog = log.get(log.size()-1);
         int numCharacters = Integer.parseInt(latestLog.substring(0,latestLog.indexOf(" ")));
-        for (int i=0;i>)
         
 	}
 	
 	public void actionPerformed(ActionEvent e){
         
 	}
-    public void keyPressed (KeyEvent e){
+    public void keyPressed (KeyEvent e) {
         if (e.getKeyCode() == KeyEvent.VK_UP){
             player.moveUp();
+            try {
+                out.writeObject(player.getX()+" "+player.getY()+" "+player.getRadius()+" "+player.getR()+" "+player.getG()+" "+player.getB());
+            } catch (IOException e1) {
+                e1.printStackTrace();
+            }
         }
         if (e.getKeyCode() == KeyEvent.VK_DOWN){
             player.moveDown();
+            try {
+                out.writeObject(player.getX()+" "+player.getY()+" "+player.getRadius()+" "+player.getR()+" "+player.getG()+" "+player.getB());
+            } catch (IOException e1) {
+                e1.printStackTrace();
+            }
         }
         if (e.getKeyCode() == KeyEvent.VK_LEFT){
             player.moveLeft();
+            try {
+                out.writeObject(player.getX()+" "+player.getY()+" "+player.getRadius()+" "+player.getR()+" "+player.getG()+" "+player.getB());
+            } catch (IOException e1) {
+                e1.printStackTrace();
+            }
         }
         if (e.getKeyCode() == KeyEvent.VK_RIGHT){
             player.moveRight();
+            try {
+                out.writeObject(player.getX()+" "+player.getY()+" "+player.getRadius()+" "+player.getR()+" "+player.getG()+" "+player.getB());
+            } catch (IOException e1) {
+                e1.printStackTrace();
+            }
         }
     }
     public void keyReleased(KeyEvent e){
@@ -81,6 +101,8 @@ public class ClientScreen extends JPanel implements ActionListener,KeyListener{
         Socket serverSocket = new Socket(hostName, portNumber);
         out = new ObjectOutputStream(serverSocket.getOutputStream());
         in = new ObjectInputStream(serverSocket.getInputStream());
+        
+        
         repaint();
 
         // listens for inputs

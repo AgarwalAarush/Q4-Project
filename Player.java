@@ -45,6 +45,12 @@ public class Player{
             yPos++;
     }
     public int getR(){
-
+        return color.getRed();
+    }
+    public int getG(){
+        return color.getGreen();
+    }
+    public int getB(){
+        return color.getBlue();
     }
 }
