@@ -15,7 +15,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 
-public class ClientScreen extends JPanel implements ActionListener,KeyListener{
+public class ClientScreen extends JPanel implements ActionListener, KeyListener{
     Player player;
     int[] backgroundPos;
     ArrayList<Player> otherPlayers;
@@ -27,8 +27,9 @@ public class ClientScreen extends JPanel implements ActionListener,KeyListener{
         setLayout(null);
 
         backgroundPos = new int[2];
-        Player player = new Player();
+        player = new Player();
 
+        addKeyListener(this);
         this.setFocusable(true);
     }
     
@@ -38,23 +39,29 @@ public class ClientScreen extends JPanel implements ActionListener,KeyListener{
 	
 	public void paintComponent(Graphics g){
 		super.paintComponent(g);
+
         backgroundPos[0]=player.getX();
         backgroundPos[1]=player.getY();
-        for (int i = 0; i < 200 ; i++){
-            g.drawLine(i * 25 - backgroundPos[0], i * 25 - backgroundPos[0],0,800);
-            g.drawLine(0, 800, i * 50 - backgroundPos[1],i * 50 - backgroundPos[1]);
-        }
-        player.drawMe(g);
-        String latestLog = log.get(log.size()-1);
-        int numCharacters = Integer.parseInt(latestLog.substring(0,latestLog.indexOf(" ")));
         
-	}
+        for (int i = 0; i < 400 ; i++){
+            g.drawLine(i * 25 - backgroundPos[0], 0,i * 25 - backgroundPos[0],800);
+            g.drawLine(0, i * 25 - backgroundPos[1],800, i * 25 - backgroundPos[1]);
+        }
+        
+        player.drawMe(g);
+        
+        // if(log.size() > 1){
+        //     String latestLog = log.get(log.size()-1);
+        //     int numCharacters = Integer.parseInt(latestLog.substring(0,latestLog.indexOf(" ")));
+        // }
+	
+    }
 	
 	public void actionPerformed(ActionEvent e){
         
 	}
     public void keyPressed (KeyEvent e) {
-        if (e.getKeyCode() == KeyEvent.VK_UP){
+        if (e.getKeyCode() == KeyEvent.VK_UP) {
             player.moveUp();
             try {
                 out.writeObject(player.getX()+" "+player.getY()+" "+player.getRadius()+" "+player.getR()+" "+player.getG()+" "+player.getB());
@@ -64,6 +71,7 @@ public class ClientScreen extends JPanel implements ActionListener,KeyListener{
         }
         if (e.getKeyCode() == KeyEvent.VK_DOWN){
             player.moveDown();
+        
             try {
                 out.writeObject(player.getX()+" "+player.getY()+" "+player.getRadius()+" "+player.getR()+" "+player.getG()+" "+player.getB());
             } catch (IOException e1) {
@@ -86,6 +94,7 @@ public class ClientScreen extends JPanel implements ActionListener,KeyListener{
                 e1.printStackTrace();
             }
         }
+        repaint();
     }
     public void keyReleased(KeyEvent e){
 
@@ -102,16 +111,25 @@ public class ClientScreen extends JPanel implements ActionListener,KeyListener{
         out = new ObjectOutputStream(serverSocket.getOutputStream());
         in = new ObjectInputStream(serverSocket.getInputStream());
         
-        
         repaint();
 
         // listens for inputs
         try {
-            String message;
-            try {
-                message = (String) (in.readObject());
-                // different message cases
-                
+            while (true) {
+                String message;
+                try {
+                    message = (String) (in.readObject());
+                    // different message cases
+                    if (message.charAt(0) == 's') {
+
+                    } else if (message.charAt(0) == 'e') {
+                        
+                    } else {
+                        log.add(message);
+                    }
+                } catch (ClassNotFoundException exc) {
+                    exc.printStackTrace();
+                }
             }
         } catch (UnknownHostException e) {
             System.err.println("Host unkown: " + hostName);
@@ -121,6 +139,10 @@ public class ClientScreen extends JPanel implements ActionListener,KeyListener{
             System.exit(1);
         }
         serverSocket.close();
+    }
+
+    private String objToString(Object o){
+        return o.toString();
     }
 
 }
