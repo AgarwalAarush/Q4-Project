@@ -38,7 +38,7 @@ public class ServerThread implements Runnable {
                 Object input;
                 try {
                     input = in.readObject();
-                    if (((String) input).equals("Start")) {
+                    if (((String) input).equals("start")) {
                         manager.start();
                     } else {
                         manager.broadcast((String) input);
