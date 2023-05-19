@@ -7,15 +7,20 @@ public class Player{
     private int radius, xPos, yPos, speed;
     private Color color;
 
-    private int numPieces;
+    private int _screen_size;;
 
-    public Player() {
-        this.radius = 15;
-        this.xPos = (int) (Math.random() * 10000);
-        this.yPos = (int) (Math.random() * 10000);
-        this.numPieces = 1;
-        this.speed = 100;
+    public Player(int screen_size) {
+        this._screen_size = screen_size;
+        this.radius = 15; this.speed = 15;
+        this.xPos = 0; this.yPos = 0;
+        // this.xPos = (int) (Math.random() * _screen_size);
+        // this.yPos = (int) (Math.random() * _screen_size);
         this.color = new Color( (int) (Math.random() * 252), (int) (Math.random() * 252), (int) (Math.random()));
+    }
+
+    public Player(int _x, int _y, int _radius, Color _color) {
+        this.xPos = _x; this.yPos = _y;
+        this.radius = _radius; this.color = _color;
     }
     
     public void drawMe(Graphics graphics){
@@ -42,7 +47,7 @@ public class Player{
     }
     
     public void moveRight(){
-        if (xPos <= 10000) { // adjust
+        if (xPos <= _screen_size) { // adjust
             xPos += speed;
         }
     }
@@ -53,7 +58,7 @@ public class Player{
     }
     
     public void moveDown(){
-        if (yPos <= 10000)
+        if (yPos <= _screen_size)
             yPos += speed;
     }
     
@@ -67,6 +72,10 @@ public class Player{
     
     public int getB(){
         return color.getBlue();
+    }
+
+    public Color getColor() {
+        return this.color;
     }
 
 }

@@ -22,12 +22,24 @@ public class ClientScreen extends JPanel implements ActionListener, KeyListener{
     private ObjectOutputStream out;
     private ObjectInputStream in;
     private ArrayList<String> log = new ArrayList<String>();
+    private final int screen_size = 1600;
+    
+    private boolean started;
+    
+    private JButton start;
 
     public ClientScreen(){
         setLayout(null);
 
+        this.started = false;
+
+        start = new JButton("Start");
+        start.setBounds(300,300,100,30);
+        start.addActionListener(this);
+        this.add(start);
+
         backgroundPos = new int[2];
-        player = new Player();
+        player = new Player(screen_size);
 
         addKeyListener(this);
         this.setFocusable(true);
@@ -41,45 +53,78 @@ public class ClientScreen extends JPanel implements ActionListener, KeyListener{
 		
         super.paintComponent(graphics);
 
-        backgroundPos[0] = player.getX();
-        backgroundPos[1] = player.getY();
-        
-        // 10,000 by 10,000 grid
-        // 25 by 25 squares
-        // 400 squares -> 401 horizontal + vertical lines
-        for (int i = 0; i < 401; i++) {
-            // horizontal lines
-            graphics.drawLine(0 - backgroundPos[0], i * 25 - backgroundPos[1], 10000 - backgroundPos[0], i * 25 - backgroundPos[1]);
-            // vertical lines
-            graphics.drawLine(i * 25 - backgroundPos[0], 0 - backgroundPos[1], i * 25 - backgroundPos[0], 10000);
+
+        checkButtons();
+
+        if (started) {
+
+            backgroundPos[0] = 400 - player.getX();
+            backgroundPos[1] = 400 - player.getY();
+            
+            // 10,000 by 10,000 grid
+            // 25 by 25 squares
+            // 400 squares -> 401 horizontal + vertical lines
+            for (int i = 0; i < 1 + screen_size / 25; i++) {
+                // horizontal lines
+                graphics.drawLine(backgroundPos[0], i * 25 + backgroundPos[1], screen_size + backgroundPos[0], i * 25 + backgroundPos[1]);
+                // vertical lines
+                graphics.drawLine(i * 25 + backgroundPos[0], 0 + backgroundPos[1], i * 25 + backgroundPos[0], screen_size);
+            }
+            
+            // player.drawMe(graphics);
+            
+            otherPlayers = new ArrayList<>();
+
+            for (int i = 0; i < log.size(); i++) {
+                String currentLog = log.get(i);
+                int x = Integer.parseInt(currentLog.substring(0,currentLog.indexOf(" ")));
+                currentLog = currentLog.substring(currentLog.indexOf(" ") + 1);
+                int y = Integer.parseInt(currentLog.substring(0,currentLog.indexOf(" ")));
+                currentLog = currentLog.substring(currentLog.indexOf(" ") + 1);
+                int radius = Integer.parseInt(currentLog.substring(0,currentLog.indexOf(" ")));
+                currentLog = currentLog.substring(currentLog.indexOf(" ") + 1);
+                int red = Integer.parseInt(currentLog.substring(0,currentLog.indexOf(" ")));
+                currentLog = currentLog.substring(currentLog.indexOf(" ") + 1);
+                int green = Integer.parseInt(currentLog.substring(0,currentLog.indexOf(" ")));
+                currentLog = currentLog.substring(currentLog.indexOf(" ") + 1);
+                int blue = Integer.parseInt(currentLog);
+                graphics.setColor(new Color (red,green,blue));
+                if (new Color(red, green, blue).equals(player.getColor())) {
+                    continue;
+                } else {
+                    otherPlayers.add(new Player(x, y, radius, new Color(red, green, blue)));
+                }
+                graphics.fillOval(x, y, radius * 2, radius * 2);   
+            }
+
+            log.clear();
+
+            for (int i = 0; i < otherPlayers.size(); i++) {
+                if (collisionDetected(this.player, otherPlayers.get(i))) {
+                    // collision detected code
+                }
+            }
+        }
+    }
+
+    private boolean collisionDetected(Player p1, Player p2) {
+        int distance = (int) Math.pow(Math.pow(p1.getX() - p2.getY(), 2) + Math.pow(p1.getY() - p2.getY(), 2), 0.5)
+        if (distance < (p1.getRadius() / 2) || distance < (p2.getRadius() / 2)) {
+            return true;
+        }
+        return false;
+    }
+
+    private void checkButtons() {
+
+        if (started) {
+            start.setVisible(false);
+        } else {
+            start.setVisible(true);
         }
 
-        System.out.println(backgroundPos[0] + " " + backgroundPos[1]);
-        
-        player.drawMe(graphics);
-        
-        if(log.size() > 0){
-            String latestLog = log.get(log.size()-1);
-            int x = Integer.parseInt(latestLog.substring(0,latestLog.indexOf(" ")));
-            latestLog = latestLog.substring(latestLog.indexOf(" ") + 1);
-            int y = Integer.parseInt(latestLog.substring(0,latestLog.indexOf(" ")));
-            latestLog = latestLog.substring(latestLog.indexOf(" ") + 1);
-            int radius = Integer.parseInt(latestLog.substring(0,latestLog.indexOf(" ")));
-            latestLog = latestLog.substring(latestLog.indexOf(" ") + 1);
-            int red = Integer.parseInt(latestLog.substring(0,latestLog.indexOf(" ")));
-            latestLog = latestLog.substring(latestLog.indexOf(" ") + 1);
-            int green = Integer.parseInt(latestLog.substring(0,latestLog.indexOf(" ")));
-            latestLog = latestLog.substring(latestLog.indexOf(" ") + 1);
-            int blue = Integer.parseInt(latestLog);
-            graphics.setColor(new Color (red,green,blue));
-            graphics.fillOval(x, y, radius * 2, radius * 2);
-        }
-	
     }
-	
-	public void actionPerformed(ActionEvent e){
-        
-	}
+    
     public void keyPressed (KeyEvent e) {
         if (e.getKeyCode() == KeyEvent.VK_UP) {
             player.moveUp();
@@ -172,6 +217,14 @@ public class ClientScreen extends JPanel implements ActionListener, KeyListener{
 
     private String objToString(Object o){
         return o.toString();
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        if (e.getSource()==start){
+            started=true;
+        }
+        repaint();
     }
 
 }
