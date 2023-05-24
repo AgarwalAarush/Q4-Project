@@ -25,7 +25,7 @@ public class Player{
     
     public void drawMe(Graphics graphics){
         graphics.setColor(color);
-        graphics.fillOval(400, 400, radius * 2, radius * 2);        
+        graphics.fillOval(400 - radius, 400 - radius, radius * 2, radius * 2);        
     }
     
     public int getX(){

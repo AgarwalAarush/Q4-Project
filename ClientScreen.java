@@ -16,12 +16,15 @@ import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 
 public class ClientScreen extends JPanel implements ActionListener, KeyListener{
+    
     Player player;
     int[] backgroundPos;
     ArrayList<Player> otherPlayers;
+    
     private ObjectOutputStream out;
     private ObjectInputStream in;
     private ArrayList<String> log = new ArrayList<String>();
+    
     private final int screen_size = 1600;
     
     private boolean started;
@@ -68,10 +71,10 @@ public class ClientScreen extends JPanel implements ActionListener, KeyListener{
                 // horizontal lines
                 graphics.drawLine(backgroundPos[0], i * 25 + backgroundPos[1], screen_size + backgroundPos[0], i * 25 + backgroundPos[1]);
                 // vertical lines
-                graphics.drawLine(i * 25 + backgroundPos[0], 0 + backgroundPos[1], i * 25 + backgroundPos[0], screen_size);
+                graphics.drawLine(i * 25 + backgroundPos[0], 0 + backgroundPos[1], i * 25 + backgroundPos[0], screen_size + backgroundPos[1]);
             }
             
-            // player.drawMe(graphics);
+            player.drawMe(graphics);
             
             otherPlayers = new ArrayList<>();
 
@@ -94,7 +97,7 @@ public class ClientScreen extends JPanel implements ActionListener, KeyListener{
                 } else {
                     otherPlayers.add(new Player(x, y, radius, new Color(red, green, blue)));
                 }
-                graphics.fillOval(x, y, radius * 2, radius * 2);   
+                graphics.fillOval(x + backgroundPos[0] - radius, y + backgroundPos[1] - radius, radius * 2, radius * 2);
             }
 
             log.clear();
@@ -107,14 +110,6 @@ public class ClientScreen extends JPanel implements ActionListener, KeyListener{
         }
     }
 
-    private boolean collisionDetected(Player p1, Player p2) {
-        int distance = (int) Math.pow(Math.pow(p1.getX() - p2.getY(), 2) + Math.pow(p1.getY() - p2.getY(), 2), 0.5)
-        if (distance < (p1.getRadius() / 2) || distance < (p2.getRadius() / 2)) {
-            return true;
-        }
-        return false;
-    }
-
     private void checkButtons() {
 
         if (started) {
@@ -124,41 +119,27 @@ public class ClientScreen extends JPanel implements ActionListener, KeyListener{
         }
 
     }
+
+    private boolean collisionDetected(Player p1, Player p2) {
+        int distance = (int) Math.pow(Math.pow(p1.getX() - p2.getY(), 2) + Math.pow(p1.getY() - p2.getY(), 2), 0.5);
+        if (distance < (p1.getRadius() / 2) || distance < (p2.getRadius() / 2)) {
+            return true;
+        }
+        return false;
+    }
     
     public void keyPressed (KeyEvent e) {
         if (e.getKeyCode() == KeyEvent.VK_UP) {
             player.moveUp();
-            try {
-                //x, y, size, R, G, B
-                out.writeObject(player.getX()+" "+player.getY()+" "+player.getRadius()+" "+player.getR()+" "+player.getG()+" "+player.getB());
-            } catch (IOException e1) {
-                e1.printStackTrace();
-            }
         }
         if (e.getKeyCode() == KeyEvent.VK_DOWN){
             player.moveDown();
-        
-            try {
-                out.writeObject(player.getX()+" "+player.getY()+" "+player.getRadius()+" "+player.getR()+" "+player.getG()+" "+player.getB());
-            } catch (IOException e1) {
-                e1.printStackTrace();
-            }
         }
         if (e.getKeyCode() == KeyEvent.VK_LEFT){
             player.moveLeft();
-            try {
-                out.writeObject(player.getX()+" "+player.getY()+" "+player.getRadius()+" "+player.getR()+" "+player.getG()+" "+player.getB());
-            } catch (IOException e1) {
-                e1.printStackTrace();
-            }
         }
         if (e.getKeyCode() == KeyEvent.VK_RIGHT){
             player.moveRight();
-            try {
-                out.writeObject(player.getX()+" "+player.getY()+" "+player.getRadius()+" "+player.getR()+" "+player.getG()+" "+player.getB());
-            } catch (IOException e1) {
-                e1.printStackTrace();
-            }
         }
         repaint();
     }
@@ -166,14 +147,6 @@ public class ClientScreen extends JPanel implements ActionListener, KeyListener{
     private String compressGraph() {
         // compress graph into String format
         return null;
-    }
-    
-    public void keyReleased(KeyEvent e){
-
-    }
-    
-    public void keyTyped(KeyEvent e){
-
     }
     
     public void poll() throws IOException {
@@ -190,6 +163,19 @@ public class ClientScreen extends JPanel implements ActionListener, KeyListener{
         // listens for inputs
         try {
             while (true) {
+
+                // try {
+                //     Thread.sleep(10);
+                // } catch (InterruptedException exc) {
+                //     Thread.currentThread().interrupt();
+                // }
+
+                try {
+                    out.writeObject(player.getX() + " " + player.getY() + " " + player.getRadius() + " " + player.getR() + " "+player.getG() + " " + player.getB());
+                } catch (IOException exc) {
+                    exc.printStackTrace();
+                }
+
                 String message;
                 try {
                     message = (String) (in.readObject());
@@ -204,6 +190,9 @@ public class ClientScreen extends JPanel implements ActionListener, KeyListener{
                 } catch (ClassNotFoundException exc) {
                     exc.printStackTrace();
                 }
+
+                repaint();
+
             }
         } catch (UnknownHostException e) {
             System.err.println("Host unkown: " + hostName);
@@ -215,16 +204,19 @@ public class ClientScreen extends JPanel implements ActionListener, KeyListener{
         serverSocket.close();
     }
 
-    private String objToString(Object o){
-        return o.toString();
-    }
-
     @Override
     public void actionPerformed(ActionEvent e) {
-        if (e.getSource()==start){
-            started=true;
+        if (e.getSource() == start){
+            started = true;
         }
-        repaint();
+    }
+
+    public void keyReleased(KeyEvent e){
+
+    }
+    
+    public void keyTyped(KeyEvent e){
+
     }
 
 }
