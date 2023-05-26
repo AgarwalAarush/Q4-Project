@@ -9,9 +9,7 @@ import java.net.*;
 import java.util.ArrayList;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import javax.swing.JTextArea;
 import javax.swing.JButton;
-import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 
@@ -24,6 +22,7 @@ public class ClientScreen extends JPanel implements ActionListener, KeyListener{
     private ObjectOutputStream out;
     private ObjectInputStream in;
     private ArrayList<String> log = new ArrayList<String>();
+    private ArrayList<String> foodLog = new ArrayList<String>();
     
     private final int screen_size = 1600;
     
@@ -72,6 +71,7 @@ public class ClientScreen extends JPanel implements ActionListener, KeyListener{
                 graphics.drawLine(backgroundPos[0], i * 25 + backgroundPos[1], screen_size + backgroundPos[0], i * 25 + backgroundPos[1]);
                 // vertical lines
                 graphics.drawLine(i * 25 + backgroundPos[0], 0 + backgroundPos[1], i * 25 + backgroundPos[0], screen_size + backgroundPos[1]);
+
             }
             
             player.drawMe(graphics);
@@ -97,7 +97,7 @@ public class ClientScreen extends JPanel implements ActionListener, KeyListener{
                 } else {
                     otherPlayers.add(new Player(x, y, radius, new Color(red, green, blue)));
                 }
-                graphics.fillOval(x + backgroundPos[0] - radius, y + backgroundPos[1] - radius, radius * 2, radius * 2);
+                graphics.fillOval(x + backgroundPos[0] - radius, y + backgroundPos[1] - radius, radius * 2, radius * 2); 
             }
 
             log.clear();
@@ -107,8 +107,27 @@ public class ClientScreen extends JPanel implements ActionListener, KeyListener{
                     // collision detected code
                 }
             }
+
+            //drawing food
+            if (foodLog.size() > 0){
+                String currentFood = foodLog.get(foodLog.size()-1);
+                //goes through food string
+                for (int i = 0; i < currentFood.length(); i++){
+                    //check if 1 or 0
+                    //draw food -i%Screen_size for row, i-i%screen_size for column
+                    if (currentFood.charAt(i) == 1){
+                        int col = i % ((int) Math.sqrt(screen_size) / 25);
+                        int row = i - i % ((int) Math.sqrt(screen_size) / 25);
+                        graphics.setColor(Color.red);
+                        graphics.fillOval(row*25,col*25,4,4);
+                    }
+                }
+                int foodCollion = foodCollisionDetected(player, currentFood);
+            }
+            
         }
     }
+    
 
     private void checkButtons() {
 
@@ -127,19 +146,48 @@ public class ClientScreen extends JPanel implements ActionListener, KeyListener{
         }
         return false;
     }
+    //returns 0 if no collision, otherwise the number in the foodString that should become 0
+    private int foodCollisionDetected(Player p,String foodString ){
+        int playerX = p.getX();
+        int playerY = p.getY();
+        int playerRad = p.getRadius();
+        //row1 = Math.sqrt(screenSize)/25, for each y one of those is added
+        //col, just add x/25
+        //position in terms of the foodgrid for the player is py/25*Math.sqrt(screenSize)/25 + x/25;
+        int playerPosNum = (playerY/25)*((int)Math.sqrt(screen_size)/25 )+playerX/25;
+        if (foodString.charAt(playerPosNum) == '1'){
+            return playerPosNum;
+        }
+        // if foodString
+        return 0;
+    }
     
     public void keyPressed (KeyEvent e) {
+        boolean playerMove = false;
         if (e.getKeyCode() == KeyEvent.VK_UP) {
             player.moveUp();
+            playerMove = true;
         }
         if (e.getKeyCode() == KeyEvent.VK_DOWN){
             player.moveDown();
+            playerMove = true;
         }
         if (e.getKeyCode() == KeyEvent.VK_LEFT){
             player.moveLeft();
+            playerMove = true;
         }
         if (e.getKeyCode() == KeyEvent.VK_RIGHT){
             player.moveRight();
+            playerMove = true;
+        }
+        if (playerMove) {
+            try {
+                System.out.println("here");
+                out.writeObject(player.getX() + " " + player.getY() + " " + player.getRadius() + " "
+                + player.getR() + " "+ player.getG() + " " + player.getB());
+            } catch (IOException exc) {
+                exc.printStackTrace();
+            }
         }
         repaint();
     }
@@ -157,24 +205,10 @@ public class ClientScreen extends JPanel implements ActionListener, KeyListener{
         Socket serverSocket = new Socket(hostName, portNumber);
         out = new ObjectOutputStream(serverSocket.getOutputStream());
         in = new ObjectInputStream(serverSocket.getInputStream());
-        
-        repaint();
 
         // listens for inputs
         try {
             while (true) {
-
-                 try {
-                     Thread.sleep(10);
-                 } catch (InterruptedException exc) {
-                     Thread.currentThread().interrupt();
-                 }
-
-                try {
-                    out.writeObject(player.getX() + " " + player.getY() + " " + player.getRadius() + " " + player.getR() + " "+player.getG() + " " + player.getB());
-                } catch (IOException exc) {
-                    exc.printStackTrace();
-                }
 
                 String message;
                 try {
