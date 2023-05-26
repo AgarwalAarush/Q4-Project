@@ -164,11 +164,11 @@ public class ClientScreen extends JPanel implements ActionListener, KeyListener{
         try {
             while (true) {
 
-                // try {
-                //     Thread.sleep(10);
-                // } catch (InterruptedException exc) {
-                //     Thread.currentThread().interrupt();
-                // }
+                 try {
+                     Thread.sleep(10);
+                 } catch (InterruptedException exc) {
+                     Thread.currentThread().interrupt();
+                 }
 
                 try {
                     out.writeObject(player.getX() + " " + player.getY() + " " + player.getRadius() + " " + player.getR() + " "+player.getG() + " " + player.getB());
