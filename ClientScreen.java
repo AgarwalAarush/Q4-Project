@@ -108,7 +108,7 @@ public class ClientScreen extends JPanel implements ActionListener, KeyListener 
         for (int i = 0; i < otherPlayers.size(); i++) {
             Player cPlayer = otherPlayers.get(i);
             graphics.setColor(cPlayer.getColor());
-            graphics.fillOval(player.getX() + backgroundPos[0] - player.getRadius(), player.getY() + backgroundPos[1] - player.getRadius(), player.getRadius() * 2, player.getRadius() * 2);
+            graphics.fillOval(cPlayer.getX() + backgroundPos[0] - cPlayer.getRadius(), cPlayer.getY() + backgroundPos[1] - cPlayer.getRadius(), cPlayer.getRadius() * 2, cPlayer.getRadius() * 2);
         }
     }
 
@@ -265,6 +265,7 @@ public class ClientScreen extends JPanel implements ActionListener, KeyListener 
                                 }
                             }
                             if (!found) otherPlayers.add(otherPlayer);
+                            repaint();
                         }
                         // send as well?
                         // repaint?
@@ -311,32 +312,34 @@ public class ClientScreen extends JPanel implements ActionListener, KeyListener 
         }
     }
 
-    public void keyReleased(KeyEvent e){
-
-    }
-    
-    public void keyTyped(KeyEvent e){
-
-    }
     public String getLeaderboard(){
         sortPlayers();
         String s = "";
-        for (int i=0;i<otherPlayers.size();i++){
-            s += otherPlayers.get(i).getName()+" - "+otherPlayers.get(i).getRadius()+ "/n";
+        for (int i = 0; i < otherPlayers.size(); i++){
+            s += otherPlayers.get(i).getName() + " - " + otherPlayers.get(i).getRadius() + "/n";
         }
         return s;
     }
+
     public void sortPlayers(){
         //insert sorting algo
-        for (int i=0;i<otherPlayers.size()-1;i++){
-            for (int j=i+1;j<otherPlayers.size();j++){
-                if (otherPlayers.get(j).getRadius()>otherPlayers.get(i).getRadius()){
+        for (int i = 0; i < otherPlayers.size() - 1; i++){
+            for (int j = i + 1; j < otherPlayers.size(); j++){
+                if (otherPlayers.get(j).getRadius() > otherPlayers.get(i).getRadius()){
                     Player temp = otherPlayers.get(j);
                     otherPlayers.set(j,otherPlayers.get(i));
                     otherPlayers.set(i,temp);
                 }
             }
         }
+    }
+
+    public void keyReleased(KeyEvent e){
+
+    }
+    
+    public void keyTyped(KeyEvent e){
+
     }
 
 }
