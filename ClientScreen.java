@@ -20,7 +20,7 @@ public class ClientScreen extends JPanel implements ActionListener, KeyListener 
     Player player;
     int[] backgroundPos;
     ArrayList<Player> otherPlayers;
-    SoundPlayer s;
+    SoundPlayer soundPlayer;
 
     private JTextArea leaderboard;
 
@@ -43,7 +43,7 @@ public class ClientScreen extends JPanel implements ActionListener, KeyListener 
 
         setLayout(null);
         
-        s = new SoundPlayer();
+        soundPlayer = new SoundPlayer();
 
         this.started = false;
 
@@ -116,13 +116,13 @@ public class ClientScreen extends JPanel implements ActionListener, KeyListener 
         for (int i = 0; i < otherPlayers.size(); i++) {
             if (collisionDetected(this.player, otherPlayers.get(i))) {
                 // collision detected code
-                if (this.player.getRadius()>otherPlayers.get(i).getRadius()){
+                if (this.player.getRadius() > otherPlayers.get(i).getRadius()){
                     player.increaseSize(otherPlayers.get(i).getRadius());
-                    s.playChompSound();
+                    soundPlayer.playChompSound();
                     leaderboard.setText(getLeaderboard());
                 }
-                else if (this.player.getRadius()<otherPlayers.get(i).getRadius()){
-                    s.playGameOverSound();
+                else if (this.player.getRadius() < otherPlayers.get(i).getRadius()){
+                    soundPlayer.playGameOverSound();
                     started = false;
 
                     player.reset();

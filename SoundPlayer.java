@@ -3,9 +3,10 @@ import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
 
 public class SoundPlayer {
+    
     public void playGameOverSound(){
         try {
-            URL url = this.getClass().getClassLoader().getResource("game_over.wav");
+            URL url = this.getClass().getClassLoader().getResource("resources/game_over.wav");
             Clip clip = AudioSystem.getClip();
             clip.open(AudioSystem.getAudioInputStream(url));
             clip.start();
@@ -13,9 +14,10 @@ public class SoundPlayer {
             exc.printStackTrace(System.out);
         }
     }
+
     public void playChompSound(){
         try {
-            URL url = this.getClass().getClassLoader().getResource("chomp.wav");
+            URL url = this.getClass().getClassLoader().getResource("resources/chomp.wav");
             Clip clip = AudioSystem.getClip();
             clip.open(AudioSystem.getAudioInputStream(url));
             clip.start();
