@@ -10,8 +10,6 @@ import java.util.ArrayList;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.JButton;
-import javax.swing.JTextField;
-import javax.swing.SwingConstants;
 
 public class ClientScreen extends JPanel implements ActionListener, KeyListener{
     
@@ -21,7 +19,7 @@ public class ClientScreen extends JPanel implements ActionListener, KeyListener{
     
     private ObjectOutputStream out;
     private ObjectInputStream in;
-    private ArrayList<String> log = new ArrayList<String>();
+    // private ArrayList<String> log = new ArrayList<String>();
     private ArrayList<String> foodLog = new ArrayList<String>();
     
     private final int screen_size = 1600;
@@ -55,76 +53,84 @@ public class ClientScreen extends JPanel implements ActionListener, KeyListener{
 		
         super.paintComponent(graphics);
 
-
         checkButtons();
 
         if (started) {
 
-            backgroundPos[0] = 400 - player.getX();
-            backgroundPos[1] = 400 - player.getY();
-            
-            // 10,000 by 10,000 grid
-            // 25 by 25 squares
-            // 400 squares -> 401 horizontal + vertical lines
-            for (int i = 0; i < 1 + screen_size / 25; i++) {
-                // horizontal lines
-                graphics.drawLine(backgroundPos[0], i * 25 + backgroundPos[1], screen_size + backgroundPos[0], i * 25 + backgroundPos[1]);
-                // vertical lines
-                graphics.drawLine(i * 25 + backgroundPos[0], 0 + backgroundPos[1], i * 25 + backgroundPos[0], screen_size + backgroundPos[1]);
-
-            }
+            drawGrid(graphics);
             
             player.drawMe(graphics);
             
             otherPlayers = new ArrayList<>();
+            drawPlayers(graphics);
 
-            for (int i = 0; i < log.size(); i++) {
-                String currentLog = log.get(i);
-                int x = Integer.parseInt(currentLog.substring(0,currentLog.indexOf(" ")));
-                currentLog = currentLog.substring(currentLog.indexOf(" ") + 1);
-                int y = Integer.parseInt(currentLog.substring(0,currentLog.indexOf(" ")));
-                currentLog = currentLog.substring(currentLog.indexOf(" ") + 1);
-                int radius = Integer.parseInt(currentLog.substring(0,currentLog.indexOf(" ")));
-                currentLog = currentLog.substring(currentLog.indexOf(" ") + 1);
-                int red = Integer.parseInt(currentLog.substring(0,currentLog.indexOf(" ")));
-                currentLog = currentLog.substring(currentLog.indexOf(" ") + 1);
-                int green = Integer.parseInt(currentLog.substring(0,currentLog.indexOf(" ")));
-                currentLog = currentLog.substring(currentLog.indexOf(" ") + 1);
-                int blue = Integer.parseInt(currentLog);
-                graphics.setColor(new Color (red,green,blue));
-                if (new Color(red, green, blue).equals(player.getColor())) {
-                    continue;
-                } else {
-                    otherPlayers.add(new Player(x, y, radius, new Color(red, green, blue)));
-                }
-                graphics.fillOval(x + backgroundPos[0] - radius, y + backgroundPos[1] - radius, radius * 2, radius * 2); 
-            }
-
-            log.clear();
-
-            for (int i = 0; i < otherPlayers.size(); i++) {
-                if (collisionDetected(this.player, otherPlayers.get(i))) {
-                    // collision detected code
-                }
-            }
-
-            //drawing food
-            if (foodLog.size() > 0){
-                String currentFood = foodLog.get(foodLog.size()-1);
-                //goes through food string
-                for (int i = 0; i < currentFood.length(); i++){
-                    //check if 1 or 0
-                    //draw food -i%Screen_size for row, i-i%screen_size for column
-                    if (currentFood.charAt(i) == 1){
-                        int col = i % ((int) Math.sqrt(screen_size) / 25);
-                        int row = i - i % ((int) Math.sqrt(screen_size) / 25);
-                        graphics.setColor(Color.red);
-                        graphics.fillOval(row*25,col*25,4,4);
-                    }
-                }
-                int foodCollion = foodCollisionDetected(player, currentFood);
-            }
+            checkCollisions(graphics);
             
+        }
+    }
+
+    private void checkCollisions(Graphics graphics) {
+        for (int i = 0; i < otherPlayers.size(); i++) {
+            if (collisionDetected(this.player, otherPlayers.get(i))) {
+                // collision detected code
+            }
+        }
+
+        //drawing food -> change? -> can just send x,y coordinates of update food and flip the boolean value
+        if (foodLog.size() > 0){
+            String currentFood = foodLog.get(foodLog.size()-1);
+            //goes through food string
+            for (int i = 0; i < currentFood.length(); i++){
+                //check if 1 or 0
+                //draw food -i%Screen_size for row, i-i%screen_size for column
+                if (currentFood.charAt(i) == 1){
+                    int col = i % ((int) Math.sqrt(screen_size) / 25);
+                    int row = i - i % ((int) Math.sqrt(screen_size) / 25);
+                    graphics.setColor(Color.red);
+                    graphics.fillOval(row*25,col*25,4,4);
+                }
+            }
+            int foodCollision = foodCollisionDetected(player, currentFood);
+        }
+    }
+
+    private void drawPlayers(Graphics graphics) {
+        for (int i = 0; i < otherPlayers.size(); i++) {
+            Player cPlayer = otherPlayers.get(i);
+            graphics.setColor(cPlayer.getColor());
+            graphics.fillOval(player.getX() + backgroundPos[0] - player.getRadius(), player.getY() + backgroundPos[1] - player.getRadius(), player.getRadius() * 2, player.getRadius() * 2);
+            // String message = otherPlayers.get(i);
+            // int x = Integer.parseInt(message.substring(0,message.indexOf(" ")));
+            // message = message.substring(message.indexOf(" ") + 1);
+            // int y = Integer.parseInt(message.substring(0,message.indexOf(" ")));
+            // message = message.substring(message.indexOf(" ") + 1);
+            // int radius = Integer.parseInt(message.substring(0,message.indexOf(" ")));
+            // message = message.substring(message.indexOf(" ") + 1);
+            // int red = Integer.parseInt(message.substring(0,message.indexOf(" ")));
+            // message = message.substring(message.indexOf(" ") + 1);
+            // int green = Integer.parseInt(message.substring(0,message.indexOf(" ")));
+            // message = message.substring(message.indexOf(" ") + 1);
+            // int blue = Integer.parseInt(message);
+            // graphics.setColor(new Color(red, green, blue));
+            // otherPlayers.add(new Player(x, y, radius, new Color(red, green, blue)));
+            // graphics.fillOval(x + backgroundPos[0] - radius, y + backgroundPos[1] - radius, radius * 2, radius * 2); 
+        }
+        otherPlayers.clear();
+    }
+
+    private void drawGrid(Graphics graphics) {
+        backgroundPos[0] = 400 - player.getX();
+        backgroundPos[1] = 400 - player.getY();
+
+        // 10,000 by 10,000 grid
+        // 25 by 25 squares
+        // 400 squares -> 401 horizontal + vertical lines
+        for (int i = 0; i < 1 + screen_size / 25; i++) {
+            // horizontal lines
+            graphics.drawLine(backgroundPos[0], i * 25 + backgroundPos[1], screen_size + backgroundPos[0], i * 25 + backgroundPos[1]);
+            // vertical lines
+            graphics.drawLine(i * 25 + backgroundPos[0], 0 + backgroundPos[1], i * 25 + backgroundPos[0], screen_size + backgroundPos[1]);
+
         }
     }
     
@@ -150,7 +156,7 @@ public class ClientScreen extends JPanel implements ActionListener, KeyListener{
     private int foodCollisionDetected(Player p,String foodString ){
         int playerX = p.getX();
         int playerY = p.getY();
-        int playerRad = p.getRadius();
+        int playerRadius = p.getRadius();
         //row1 = Math.sqrt(screenSize)/25, for each y one of those is added
         //col, just add x/25
         //position in terms of the foodgrid for the player is py/25*Math.sqrt(screenSize)/25 + x/25;
@@ -182,9 +188,7 @@ public class ClientScreen extends JPanel implements ActionListener, KeyListener{
         }
         if (playerMove) {
             try {
-                System.out.println("here");
-                out.writeObject(player.getX() + " " + player.getY() + " " + player.getRadius() + " "
-                + player.getR() + " "+ player.getG() + " " + player.getB());
+                out.writeObject(player.getX() + " " + player.getY() + " " + player.getRadius() + " " + player.getR() + " "+ player.getG() + " " + player.getB());
             } catch (IOException exc) {
                 exc.printStackTrace();
             }
@@ -195,6 +199,24 @@ public class ClientScreen extends JPanel implements ActionListener, KeyListener{
     private String compressGraph() {
         // compress graph into String format
         return null;
+    }
+
+    private Player determineAuthenticity(String message) {
+            int x = Integer.parseInt(message.substring(0,message.indexOf(" ")));
+            message = message.substring(message.indexOf(" ") + 1);
+            int y = Integer.parseInt(message.substring(0,message.indexOf(" ")));
+            message = message.substring(message.indexOf(" ") + 1);
+            int radius = Integer.parseInt(message.substring(0,message.indexOf(" ")));
+            message = message.substring(message.indexOf(" ") + 1);
+            int red = Integer.parseInt(message.substring(0,message.indexOf(" ")));
+            message = message.substring(message.indexOf(" ") + 1);
+            int green = Integer.parseInt(message.substring(0,message.indexOf(" ")));
+            message = message.substring(message.indexOf(" ") + 1);
+            int blue = Integer.parseInt(message);
+            if ((new Color(red, green, blue)).equals(player.getColor())) {
+                return null;
+            }
+            return new Player(x, y, radius, new Color(red, green, blue));
     }
     
     public void poll() throws IOException {
@@ -219,13 +241,22 @@ public class ClientScreen extends JPanel implements ActionListener, KeyListener{
                     } else if (message.charAt(0) == 'e') {
                         
                     } else {
-                        log.add(message);
+                        // determine authenticity
+                        Player otherPlayer = determineAuthenticity(message);
+                        if (otherPlayer != null) {
+                            otherPlayers.add(otherPlayer);
+                            try {
+                                out.writeObject(player.getX() + " " + player.getY() + " " + player.getRadius() + " " + player.getR() + " "+ player.getG() + " " + player.getB());
+                            } catch (IOException exc) {
+                                exc.printStackTrace();
+                            }
+                        }
+                        // send as well?
+                        // repaint?
                     }
                 } catch (ClassNotFoundException exc) {
                     exc.printStackTrace();
                 }
-
-                repaint();
 
             }
         } catch (UnknownHostException e) {

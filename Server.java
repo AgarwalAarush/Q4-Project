@@ -33,13 +33,13 @@ public class Server {
 		}
 
 		private void developFood() {
-			for (int i=0;i<foodGrid.length;i++){
-				for (int j=0;j<foodGrid[i].length;j++){
+			for (int i = 0; i < foodGrid.length; i++){
+				for (int j = 0; j < foodGrid[i].length; j++){
 					double rand = Math.random();
-					if (rand<0.2){
-						foodGrid[i][j]=0;
+					if (rand < 0.2){
+						foodGrid[i][j] = 0;
 					}else{
-						foodGrid[i][j]=1;
+						foodGrid[i][j] = 1;
 					}
 				}
 			}
