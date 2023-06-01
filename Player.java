@@ -4,7 +4,8 @@ import javax.swing.*;
 
 public class Player{
     
-    private int radius, xPos, yPos, speed;
+    private double radius;
+    private int xPos, yPos, speed;
     private Color color;
     private String name;
 
@@ -19,6 +20,7 @@ public class Player{
         // this.yPos = (int) (Math.random() * _screen_size);
         this.color = new Color( (int) (Math.random() * 252), (int) (Math.random() * 252), (int) (Math.random()));
     }
+    
     public void setName(String n){
         this.name = n;
     }
@@ -33,19 +35,19 @@ public class Player{
     
     public void drawMe(Graphics graphics){
         graphics.setColor(color);
-        graphics.fillOval(400 - radius, 400 - radius, radius * 2, radius * 2);        
+        graphics.fillOval(400 - (int) radius, 400 - (int) radius, (int) radius * 2, (int) radius * 2);        
     }
     
     public int getX(){
-        return xPos + radius;
+        return xPos + (int) radius;
     }
     
     public int getY(){
-        return yPos + radius;
+        return yPos + (int) radius;
     }
     
     public int getRadius(){
-        return radius;
+        return (int) radius;
     }
     
     public void moveLeft(){
@@ -85,9 +87,11 @@ public class Player{
     public Color getColor() {
         return this.color;
     }
+
     public void increaseSize(int r){
-        radius+=r;
+        radius += (r / 4.0);
     }
+
     public void reset(){
         this.radius = 15; this.speed = 15;
         this.xPos = 0; this.yPos = 0;

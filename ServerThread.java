@@ -33,6 +33,8 @@ public class ServerThread implements Runnable {
             out = new ObjectOutputStream(socket.getOutputStream());
             ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
 
+            manager.updateBoard();
+
             while (true) {
                 
                 Object input;
@@ -40,6 +42,8 @@ public class ServerThread implements Runnable {
                     input = in.readObject();
                     if (((String) input).equals("start")) {
                         manager.start();
+                    } else if (((String) input).charAt(0) == 'U') {
+                        manager.updateBoard((String) input);
                     } else {
                         manager.broadcast((String) input);
                     }
@@ -50,7 +54,7 @@ public class ServerThread implements Runnable {
             }
         } catch (IOException ex) {
             System.out.println("Error listening for a connection");
-            System.out.println(ex.getMessage());
+            ex.printStackTrace();
         }
 
     }

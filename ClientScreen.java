@@ -11,6 +11,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.JButton;
 import javax.swing.JTextField;
+import javax.xml.transform.SourceLocator;
 import javax.swing.JTextArea;
 import javax.swing.JScrollPane;
 
@@ -39,11 +40,15 @@ public class ClientScreen extends JPanel implements ActionListener, KeyListener 
     
     private JButton start;
 
+    private int[][] foodGrid;
+
     public ClientScreen(){
 
         setLayout(null);
         
         soundPlayer = new SoundPlayer();
+
+        this.foodGrid = new int[screen_size / 25][screen_size / 25];
 
         this.started = false;
 
@@ -77,6 +82,7 @@ public class ClientScreen extends JPanel implements ActionListener, KeyListener 
 
         addKeyListener(this);
         this.setFocusable(true);
+
     }
     
     public Dimension getPreferredSize(){
@@ -92,6 +98,7 @@ public class ClientScreen extends JPanel implements ActionListener, KeyListener 
         if (started) {
             
             drawGrid(graphics);
+            drawFood(graphics);
             
             player.drawMe(graphics);
             
@@ -101,6 +108,20 @@ public class ClientScreen extends JPanel implements ActionListener, KeyListener 
             
         } else {
 
+
+
+        }
+    }
+
+    private void drawFood(Graphics graphics) {
+        for (int i = 0; i < screen_size / 25; i++) {
+            for (int j = 0; j < screen_size / 25; j++) {
+                if (foodGrid[i][j] == 1) {
+                    Color randColor = new Color((int) (Math.random() * 256), (int) (Math.random() * 256), (int) (Math.random() * 256));
+                    graphics.setColor(randColor);
+                    graphics.fillOval(9 + j * 25 + backgroundPos[0], 9 + i * 25 + backgroundPos[1], 6, 6);
+                }
+            }
         }
     }
 
@@ -113,6 +134,7 @@ public class ClientScreen extends JPanel implements ActionListener, KeyListener 
     }
 
     private void checkCollisions(Graphics graphics) {
+        
         for (int i = 0; i < otherPlayers.size(); i++) {
             if (collisionDetected(this.player, otherPlayers.get(i))) {
                 // collision detected code
@@ -131,22 +153,24 @@ public class ClientScreen extends JPanel implements ActionListener, KeyListener 
             }
         }
 
-        //drawing food -> change? -> can just send x,y coordinates of update food and flip the boolean value
-        if (foodLog.size() > 0){
-            String currentFood = foodLog.get(foodLog.size()-1);
-            //goes through food string
-            for (int i = 0; i < currentFood.length(); i++){
-                //check if 1 or 0
-                //draw food -i%Screen_size for row, i-i%screen_size for column
-                if (currentFood.charAt(i) == 1){
-                    int col = i % ((int) Math.sqrt(screen_size) / 25);
-                    int row = i - i % ((int) Math.sqrt(screen_size) / 25);
-                    graphics.setColor(Color.red);
-                    graphics.fillOval(row*25,col*25,4,4);
-                }
+        ArrayList<Pair<Integer, Integer>> foodCollisions = foodCollisionsDetected();
+        player.increaseSize(foodCollisions.size());
+
+        if (foodCollisions.size() > 0) {
+            String update = "U ";
+            update += foodCollisions.size() + " ";
+            for (int i = 0; i < foodCollisions.size(); i++) {
+                update += foodCollisions.get(i).getK() + " " + foodCollisions.get(i).getV() + " ";
             }
-            int foodCollision = foodCollisionDetected(player, currentFood);
+
+            try {
+                out.writeObject(update);
+            } catch (IOException exc) {
+                exc.printStackTrace();
+            }
+
         }
+
     }
 
     private void drawGrid(Graphics graphics) {
@@ -155,6 +179,7 @@ public class ClientScreen extends JPanel implements ActionListener, KeyListener 
         // 10,000 by 10,000 grid
         // 25 by 25 squares
         // 400 squares -> 401 horizontal + vertical lines
+        graphics.setColor(Color.BLACK);
         for (int i = 0; i < 1 + screen_size / 25; i++) {
             // horizontal lines
             graphics.drawLine(backgroundPos[0], i * 25 + backgroundPos[1], screen_size + backgroundPos[0], i * 25 + backgroundPos[1]);
@@ -182,19 +207,30 @@ public class ClientScreen extends JPanel implements ActionListener, KeyListener 
         return false;
     }
     //returns 0 if no collision, otherwise the number in the foodString that should become 0
-    private int foodCollisionDetected(Player p,String foodString ){
-        int playerX = p.getX();
-        int playerY = p.getY();
-        int playerRadius = p.getRadius();
-        //row1 = Math.sqrt(screenSize)/25, for each y one of those is added
-        //col, just add x/25
-        //position in terms of the foodgrid for the player is py/25*Math.sqrt(screenSize)/25 + x/25;
-        int playerPosNum = (playerY/25)*((int)Math.sqrt(screen_size)/25 )+playerX/25;
-        if (foodString.charAt(playerPosNum) == '1'){
-            return playerPosNum;
+    private ArrayList<Pair<Integer, Integer>> foodCollisionsDetected(){
+        
+        ArrayList<Pair<Integer, Integer>> foodCollisions = new ArrayList<>();
+        
+        int playerX = player.getX();
+        int playerY = player.getY();
+        int playerRadius = player.getRadius();
+        
+        int gridXStart = (playerX - playerRadius) / 25;
+        int gridXEnd = (playerX + playerRadius) / 25;
+        
+        int gridYStart = (playerY - playerRadius) / 25;
+        int gridYEnd = (playerY + playerRadius) / 25;
+
+        for (int i = gridYStart; i < gridYEnd; i++) {
+            for (int j = gridXStart; j < gridXEnd; j++) {
+                if (foodGrid[i][j] == 1) {
+                    foodCollisions.add(new Pair<Integer, Integer>(i, j));
+                }
+            }
         }
-        // if foodString
-        return 0;
+
+        return foodCollisions;
+
     }
     
     public void keyPressed (KeyEvent e) {
@@ -227,11 +263,6 @@ public class ClientScreen extends JPanel implements ActionListener, KeyListener 
         
         repaint();
     }
-
-    private String compressGraph() {
-        // compress graph into String format
-        return null;
-    }
     
     public void poll() throws IOException {
         
@@ -254,6 +285,13 @@ public class ClientScreen extends JPanel implements ActionListener, KeyListener 
 
                     } else if (message.charAt(0) == 'e') {
                         
+                    } else if (message.charAt(0) == 'F') {
+                        for (int i = 0; i < screen_size / 25; i++) {
+                            for (int j = 0; j < screen_size / 25; j++) {
+                                foodGrid[i][j] = message.charAt(1 + j + i * 25) - 48;
+                            }
+                        }
+                        System.out.println("here");
                     } else {
                         // determine authenticity
                         Player otherPlayer = determineAuthenticity(message);
