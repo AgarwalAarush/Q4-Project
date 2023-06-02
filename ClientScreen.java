@@ -207,7 +207,7 @@ public class ClientScreen extends JPanel implements ActionListener, KeyListener 
         return false;
     }
     //returns 0 if no collision, otherwise the number in the foodString that should become 0
-    private ArrayList<Pair<Integer, Integer>> foodCollisionsDetected(){
+    private ArrayList<Pair<Integer, Integer>> foodCollisionsDetected() {
         
         ArrayList<Pair<Integer, Integer>> foodCollisions = new ArrayList<>();
         
@@ -288,10 +288,13 @@ public class ClientScreen extends JPanel implements ActionListener, KeyListener 
                     } else if (message.charAt(0) == 'F') {
                         for (int i = 0; i < screen_size / 25; i++) {
                             for (int j = 0; j < screen_size / 25; j++) {
-                                foodGrid[i][j] = message.charAt(1 + j + i * 25) - 48;
+                                foodGrid[i][j] = message.charAt(1 + j + i * (screen_size / 25)) - 48;
+                                // System.out.print(foodGrid[i][j]);
                             }
+                            // System.out.println();
                         }
-                        System.out.println("here");
+                        // System.out.println();
+                        
                     } else {
                         // determine authenticity
                         Player otherPlayer = determineAuthenticity(message);

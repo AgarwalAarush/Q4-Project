@@ -34,7 +34,7 @@ public class ClientManager {
             if (i != numUpdates - 1) {
                 update = update.substring(update.indexOf(" ") + 1);
             }
-            board.remove(y, x);
+            this.board.remove(y, x);
         }
         this.updateBoard();
     }
