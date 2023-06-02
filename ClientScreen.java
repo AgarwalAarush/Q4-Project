@@ -111,8 +111,14 @@ public class ClientScreen extends JPanel implements ActionListener, KeyListener 
             graphics.drawString("Name: ", 250, 375);
             nameInput.setVisible(true);
             start.setVisible(true);
+
+            graphics.drawString("Move using arrow keys", 50, 50);
+            graphics.drawString("Collect tiny orbs and eat other players to grow bigger", 50, 100);
+            graphics.drawString("First player to 150 wins!", 50, 150);
+            graphics.drawString("The leaderboard is in the top right corner", 50, 200);
+
             if (!winnerName.equals("")){
-                graphics.drawString(winnerName+" won by reaching XXX size!",100,100);
+                graphics.drawString(winnerName+" won by reaching 150 size!",100,300);
             }
 
         }
@@ -306,7 +312,7 @@ public class ClientScreen extends JPanel implements ActionListener, KeyListener 
     public void poll() throws IOException {
         
         // String hostName = "10.11.115.207";
-        String hostName = "192.168.1.18";
+        String hostName = "10.210.116.2";
         int portNumber = 1023;
         Socket serverSocket = new Socket(hostName, portNumber);
         out = new ObjectOutputStream(serverSocket.getOutputStream());
@@ -345,6 +351,7 @@ public class ClientScreen extends JPanel implements ActionListener, KeyListener 
                         }
                     } else if (message.charAt(0)=='E'){
                         if (message.substring(2,5).equals("ALL")){
+                            otherPlayers = new MyArrayList<>();
                             winnerName = message.substring(5);
                             player.reset();
                             started = false;
