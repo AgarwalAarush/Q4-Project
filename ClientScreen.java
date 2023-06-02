@@ -64,7 +64,7 @@ public class ClientScreen extends JPanel implements ActionListener, KeyListener 
 		JScrollPane scrollPane = new JScrollPane(leaderboard); 
 		scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 		scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-		scrollPane.setBounds(600,0,200,300);
+		scrollPane.setBounds(600,0,100,100);
 
 		this.add(scrollPane);
 
@@ -105,12 +105,18 @@ public class ClientScreen extends JPanel implements ActionListener, KeyListener 
             drawPlayers(graphics);
 
             checkCollisions(graphics);
+
+            drawLeaderboard();
             
         } else {
 
 
 
         }
+    }
+
+    private void drawLeaderboard() {
+
     }
 
     private void drawFood(Graphics graphics) {
@@ -180,7 +186,7 @@ public class ClientScreen extends JPanel implements ActionListener, KeyListener 
         // 25 by 25 squares
         // 400 squares -> 401 horizontal + vertical lines
         graphics.setColor(Color.BLACK);
-        for (int i = 0; i < 1 + screen_size / 25; i++) {
+        for (int i = 0; i < 1 + (screen_size / 25); i++) {
             // horizontal lines
             graphics.drawLine(backgroundPos[0], i * 25 + backgroundPos[1], screen_size + backgroundPos[0], i * 25 + backgroundPos[1]);
             // vertical lines
@@ -221,8 +227,8 @@ public class ClientScreen extends JPanel implements ActionListener, KeyListener 
         int gridYStart = (playerY - playerRadius) / 25;
         int gridYEnd = (playerY + playerRadius) / 25;
 
-        for (int i = gridYStart; i < gridYEnd; i++) {
-            for (int j = gridXStart; j < gridXEnd; j++) {
+        for (int i = gridYStart; i < Math.min(gridYEnd, screen_size / 25); i++) {
+            for (int j = gridXStart; j < Math.min(gridXEnd, screen_size / 25); j++) {
                 if (foodGrid[i][j] == 1) {
                     foodCollisions.add(new Pair<Integer, Integer>(i, j));
                 }
@@ -289,11 +295,8 @@ public class ClientScreen extends JPanel implements ActionListener, KeyListener 
                         for (int i = 0; i < screen_size / 25; i++) {
                             for (int j = 0; j < screen_size / 25; j++) {
                                 foodGrid[i][j] = message.charAt(1 + j + i * (screen_size / 25)) - 48;
-                                // System.out.print(foodGrid[i][j]);
                             }
-                            // System.out.println();
                         }
-                        // System.out.println();
                         
                     } else {
                         // determine authenticity

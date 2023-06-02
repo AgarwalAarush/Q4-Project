@@ -2,7 +2,7 @@ import java.awt.*;
 import java.util.*;
 import javax.swing.*;
 
-public class Player{
+public class Player {
     
     private double radius;
     private int xPos, yPos, speed;
@@ -21,7 +21,7 @@ public class Player{
         this.color = new Color( (int) (Math.random() * 252), (int) (Math.random() * 252), (int) (Math.random()));
     }
     
-    public void setName(String n){
+    public void setName(String n) {
         this.name = n;
     }
     public String getName(){
@@ -46,41 +46,41 @@ public class Player{
         return yPos + (int) radius;
     }
     
-    public int getRadius(){
+    public int getRadius() {
         return (int) radius;
     }
     
-    public void moveLeft(){
-        if (xPos >= 0){
+    public void moveLeft() {
+        if (xPos - speed - (int) radius >= 0){
             xPos -= speed;
         }
     }
     
-    public void moveRight(){
-        if (xPos <= _screen_size) { // adjust
+    public void moveRight() {
+        if (xPos + speed + (int) radius <= _screen_size) { // adjust
             xPos += speed;
         }
     }
     
-    public void moveUp(){
-        if (yPos >= 0)
+    public void moveUp() {
+        if (yPos - speed - (int) radius >= 0)
             yPos -= speed;
     }
     
-    public void moveDown(){
-        if (yPos <= _screen_size)
+    public void moveDown() {
+        if (yPos + speed + (int) radius <= _screen_size)
             yPos += speed;
     }
     
-    public int getR(){
+    public int getR() {
         return color.getRed();
     }
     
-    public int getG(){
+    public int getG() {
         return color.getGreen();
     }
     
-    public int getB(){
+    public int getB() {
         return color.getBlue();
     }
 
@@ -88,11 +88,12 @@ public class Player{
         return this.color;
     }
 
-    public void increaseSize(int r){
-        radius += (r / 4.0);
+    public void increaseSize(int r) {
+        // radius += (0.25 + ((int) ((Math.log(r)) * 100)) / 100);
+        radius += r / 4.0;
     }
 
-    public void reset(){
+    public void reset() {
         this.radius = 15; this.speed = 15;
         this.xPos = 0; this.yPos = 0;
         // this.xPos = (int) (Math.random() * _screen_size);
