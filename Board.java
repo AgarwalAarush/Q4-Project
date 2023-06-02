@@ -35,7 +35,7 @@ public class Board {
         this.foodGrid[y][x] = 0;
     }
 
-    private void foodPopulation() {
+    public void foodPopulation() {
         // filling up 40% of unfilled food spaces
         for (int i = 0; i < foodGrid.length; i++){
             for (int j = 0; j < foodGrid[i].length; j++) {

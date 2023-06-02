@@ -1,10 +1,10 @@
-import java.util.*;
-import java.io.*;
+
 
 public class ClientManager {
 
-    private ArrayList<ServerThread> list = new ArrayList<ServerThread>();
+    private MyArrayList<ServerThread> list = new MyArrayList<ServerThread>();
     private Board board;
+    private int updateCount;
     
     public ClientManager(Board board) {
         this.board = board;
@@ -12,30 +12,33 @@ public class ClientManager {
 
     // broadcast grid
     public void broadcast(String update) {
-        for (ServerThread s : list) {
-            s.send(update);
+        for (int i = 0; i < list.size(); i++) {
+            list.get(i).send(update);
         }
     }
 
     public void updateBoard() {
-        for (ServerThread s : list) {
-            s.send(this.board.toString());
+        for (int i = 0; i < list.size(); i++){
+            list.get(i).send(this.board.toString());
         }
     }
 
-    // change to ArrayList<Pair<Integer, Integer>>
+    // change to MyArrayList<Pair<Integer, Integer>>
     public void updateBoard(String update) {
-        int numUpdates = update.charAt(2) - 48;
-        update = update.substring(4);
+        updateCount = (updateCount + 1) % 100;
+        update = update.substring(update.indexOf(" ") + 1);
+        int numUpdates = Integer.parseInt(update.substring(0, update.indexOf(" ")));
+        update = update.substring(update.indexOf(" ") + 1);
         for (int i = 0; i < numUpdates; i++) {
-            int y = Integer.parseInt(update.substring(0,update.indexOf(" ")));
+            int y = Integer.parseInt(update.substring(0, update.indexOf(" ")));
             update = update.substring(update.indexOf(" ") + 1);
-            int x = Integer.parseInt(update.substring(0,update.indexOf(" ")));
+            int x = Integer.parseInt(update.substring(0, update.indexOf(" ")));
             if (i != numUpdates - 1) {
                 update = update.substring(update.indexOf(" ") + 1);
             }
             this.board.remove(y, x);
         }
+        if (updateCount == 0) this.board.foodPopulation();
         this.updateBoard();
     }
 

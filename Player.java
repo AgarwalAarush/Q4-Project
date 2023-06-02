@@ -1,5 +1,4 @@
 import java.awt.*;
-import java.util.*;
 import javax.swing.*;
 
 public class Player {
@@ -9,21 +8,20 @@ public class Player {
     private Color color;
     private String name;
 
-    private int _screen_size;;
+    private int _screen_size;
 
     public Player(int screen_size) {
         this.name = "";
         this._screen_size = screen_size;
-        this.radius = 15; this.speed = 15;
-        this.xPos = 0; this.yPos = 0;
-        // this.xPos = (int) (Math.random() * _screen_size);
-        // this.yPos = (int) (Math.random() * _screen_size);
+        this.radius = 15; 
+        this.speed = 15;
+
+        // this.xPos = 0; this.yPos = 0;
+        this.xPos = (int) (Math.random() * _screen_size);
+        this.yPos = (int) (Math.random() * _screen_size);
         this.color = new Color( (int) (Math.random() * 252), (int) (Math.random() * 252), (int) (Math.random()));
     }
     
-    public void setName(String n) {
-        this.name = n;
-    }
     public String getName(){
         return name;
     }
@@ -35,15 +33,21 @@ public class Player {
     
     public void drawMe(Graphics graphics){
         graphics.setColor(color);
-        graphics.fillOval(400 - (int) radius, 400 - (int) radius, (int) radius * 2, (int) radius * 2);        
+        graphics.fillOval(400 - (int) radius, 400 - (int) radius, (int) radius * 2, (int) radius * 2);
+        graphics.setColor(new Color(255 - color.getRed(), 255 - color.getGreen(), 255 - color.getBlue()));
+        graphics.drawString(this.name, 400 - (int) this.radius, 400 - (int) this.radius);
+    }
+
+    public void setName(String _name) {
+        this.name = _name;
     }
     
-    public int getX(){
-        return xPos + (int) radius;
+    public int getX() {
+        return xPos;
     }
     
-    public int getY(){
-        return yPos + (int) radius;
+    public int getY() {
+        return yPos;
     }
     
     public int getRadius() {
@@ -89,15 +93,19 @@ public class Player {
     }
 
     public void increaseSize(int r) {
-        // radius += (0.25 + ((int) ((Math.log(r)) * 100)) / 100);
-        radius += r / 4.0;
+        if (r > 0) {
+            // radius += (0.25 + ((int) ((1.0 / Math.pow(radius, 1.1)) * (Math.log(r)) * 100)) / 100.);
+            radius += (0.25 + ((int) ((Math.log(r)) * 100)) / 100.);
+        }
+        this.speed = (int) ((1.0 / radius) * 225);
     }
 
     public void reset() {
-        this.radius = 15; this.speed = 15;
-        this.xPos = 0; this.yPos = 0;
-        // this.xPos = (int) (Math.random() * _screen_size);
-        // this.yPos = (int) (Math.random() * _screen_size);
+        this.radius = 15; 
+        // this.speed = (int)((1/radius)*225);
+
+        this.xPos = (int) (Math.random() * _screen_size);
+        this.yPos = (int) (Math.random() * _screen_size);
         this.color = new Color( (int) (Math.random() * 252), (int) (Math.random() * 252), (int) (Math.random()));
     }
 
